@@ -10,7 +10,9 @@ ParGive is a premium, subscription-driven web application that combines golf per
 - **Charity Integration**: Users select a charity and contribution percentage (min 10%) during onboarding.
 - **Admin Dashboard**: Comprehensive control over draws (simulation & publishing), winner verification, and platform analytics.
 - **Winner Verification**: Winners can upload proof of their scores, which administrators then review and approve for payout.
-- **Premium UI/UX**: Motion-enhanced, modern design focused on impact rather than traditional golf clichés.
+- **Elite 3D UI/UX**: High-end "Obsidian" design system featuring Framer Motion 3D perspective transforms, glassmorphism, and real-time atmospheric effects.
+- **Skiper UI Integration**: Advanced animated navigation and interaction components using the `@skiper-ui` library.
+- **Tailwind v4 Optimized**: Fully migrated to the latest Tailwind CSS engine for superior performance and modern styling capabilities.
 
 ## 🛠️ Technology Stack
 
