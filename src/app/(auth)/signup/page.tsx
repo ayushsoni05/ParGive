@@ -1,12 +1,40 @@
-'use client';
-
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Github } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function Signup() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { data, error: signupError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    if (signupError) {
+      setError(signupError.message);
+    } else {
+      router.push('/subscribe');
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-6 py-20">
@@ -24,14 +52,23 @@ export default function Signup() {
           <p className="mt-2 text-slate-400">Start your journey of golf and impact.</p>
         </div>
 
-        <form className="flex flex-col gap-5">
+        {error && (
+          <div className="mb-6 rounded-xl bg-rose-500/10 p-4 text-sm text-rose-400">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSignup} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-300">Full Name</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input 
+                required
                 type="text" 
                 placeholder="Tiger Woods"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white outline-none transition-all focus:border-emerald-500/50 focus:bg-white/10"
               />
             </div>
@@ -42,8 +79,11 @@ export default function Signup() {
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input 
+                required
                 type="email" 
                 placeholder="tiger@pargive.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white outline-none transition-all focus:border-emerald-500/50 focus:bg-white/10"
               />
             </div>
@@ -54,23 +94,26 @@ export default function Signup() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input 
+                required
                 type="password" 
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-white outline-none transition-all focus:border-emerald-500/50 focus:bg-white/10"
               />
             </div>
           </div>
 
           <button 
-            type="button"
+            type="submit"
             className="btn-primary mt-4 w-full justify-center py-4 text-lg"
-            onClick={() => setLoading(true)}
             disabled={loading}
           >
             {loading ? 'Creating Account...' : 'Create Account'}
             <ArrowRight size={20} />
           </button>
         </form>
+
 
         <div className="mt-8">
           <div className="relative mb-8 flex items-center justify-center">

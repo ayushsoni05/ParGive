@@ -1,6 +1,4 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Trophy, 
@@ -15,41 +13,63 @@ import {
   Info
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Mock data
-const MOCK_USER = {
-  name: 'Sarah Drasner',
-  plan: 'Hero Partner',
-  status: 'Active',
-  renewalDate: 'May 12, 2026',
-  charity: 'Ocean Cleanse',
-  charityPct: 15,
-  totalWon: '$1,250',
-  pendingPayout: '$250',
-};
-
-const MOCK_SCORES = [
-  { id: '1', score: 38, date: '2026-04-15' },
-  { id: '2', score: 42, date: '2026-04-10' },
-  { id: '3', score: 35, date: '2026-04-05' },
-  { id: '4', score: 40, date: '2026-03-28' },
-  { id: '5', score: 37, date: '2026-03-20' },
-];
+import { supabase, GolfScore } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
-  const [scores, setScores] = useState(MOCK_SCORES);
+  const router = useRouter();
+  const [scores, setScores] = useState<GolfScore[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [newScore, setNewScore] = useState({ score: '', date: '' });
+  const [user, setUser] = useState<any>(null);
 
-  const handleAddScore = () => {
-    if (!newScore.score || !newScore.date) return;
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      setUser(user);
+      fetchScores(user.id);
+    };
+    checkUser();
+  }, [router]);
+
+  const fetchScores = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('scores')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false })
+      .limit(5);
+
+    if (data) setScores(data);
+    setLoading(false);
+  };
+
+  const handleAddScore = async () => {
+    if (!newScore.score || !newScore.date || !user) return;
     
-    const nextScores = [
-      { id: Date.now().toString(), score: parseInt(newScore.score), date: newScore.date },
-      ...scores
-    ].slice(0, 5); // Rolling 5 logic
+    // Add to DB
+    const { data: inserted, error } = await supabase
+      .from('scores')
+      .insert([
+        { 
+          user_id: user.id, 
+          score: parseInt(newScore.score), 
+          date: newScore.date 
+        }
+      ])
+      .select()
+      .single();
+
+    if (inserted) {
+      // Logic for rolling 5: Fetch latest 5 again to ensure sync
+      fetchScores(user.id);
+    }
     
-    setScores(nextScores);
     setNewScore({ score: '', date: '' });
     setShowScoreModal(false);
   };
@@ -58,13 +78,13 @@ export default function Dashboard() {
     <div className="mx-auto max-w-7xl px-6 py-12">
       <div className="mb-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white md:text-4xl">Hello, {MOCK_USER.name}</h1>
+          <h1 className="text-3xl font-bold text-white md:text-4xl">Hello, {user?.user_metadata?.full_name || 'Golfer'}</h1>
           <p className="text-slate-400">Welcome to your impact dashboard.</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-end">
             <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Subscription</span>
-            <span className="text-sm font-semibold text-emerald-400">{MOCK_USER.plan} • {MOCK_USER.status}</span>
+            <span className="text-sm font-semibold text-emerald-400">Hero Partner • Active</span>
           </div>
           <button className="rounded-full bg-white/5 p-2 text-slate-400 transition-colors hover:bg-white/10">
             <CreditCard size={20} />
@@ -84,11 +104,11 @@ export default function Dashboard() {
                 <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Winnings</span>
               </div>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-black text-white">{MOCK_USER.totalWon}</span>
+                <span className="text-4xl font-black text-white">$1,250</span>
                 <span className="mb-1 text-sm text-emerald-400">Total</span>
               </div>
               <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-                <Info size={14} /> Payout of {MOCK_USER.pendingPayout} is currently pending
+                <Info size={14} /> Payout of $250 is currently pending
               </div>
             </div>
 
@@ -98,8 +118,8 @@ export default function Dashboard() {
                 <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Your Charity</span>
               </div>
               <div className="flex items-center gap-3">
-                <h3 className="text-2xl font-bold text-white">{MOCK_USER.charity}</h3>
-                <span className="rounded-lg bg-rose-500/10 px-2 py-1 text-xs font-bold text-rose-400">{MOCK_USER.charityPct}% Impact</span>
+                <h3 className="text-2xl font-bold text-white">Ocean Cleanse</h3>
+                <span className="rounded-lg bg-rose-500/10 px-2 py-1 text-xs font-bold text-rose-400">15% Impact</span>
               </div>
               <Link href="/onboarding" className="mt-4 flex items-center gap-1 text-xs font-semibold text-rose-400 hover:underline">
                 Update Charity <ChevronRight size={14} />
@@ -123,27 +143,31 @@ export default function Dashboard() {
             </div>
 
             <div className="flex flex-col gap-3">
-              {scores.map((score, i) => (
-                <div key={score.id} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/10">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-xl font-black text-white">
-                      {score.score}
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-white">Stableford Points</div>
-                      <div className="flex items-center gap-1 text-xs text-slate-500">
-                        <Calendar size={12} /> {score.date}
+              {loading ? (
+                <div className="py-10 text-center text-slate-500">Loading your performance data...</div>
+              ) : scores.length === 0 ? (
+                <div className="py-10 text-center text-slate-500">No scores entered yet. Start your round!</div>
+              ) : (
+                scores.map((score, i) => (
+                  <div key={score.id} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-all hover:border-white/10">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-xl font-black text-white">
+                        {score.score}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-white">Stableford Points</div>
+                        <div className="flex items-center gap-1 text-xs text-slate-500">
+                          <Calendar size={12} /> {score.date}
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button className="p-2 text-slate-500 transition-colors hover:text-white"><Edit2 size={16} /></button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
+
 
         {/* Sidebar (1/3) */}
         <div className="flex flex-col gap-8">
