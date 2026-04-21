@@ -1,210 +1,160 @@
 'use client';
 
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Trophy, Heart, ArrowRight, Target, Play, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Target, Heart, Trophy, ArrowRight, ShieldCheck, Users, Calendar, MousePointer2 } from 'lucide-react';
 import { useRef } from 'react';
-import { Link004 } from '@/components/ui/skiper-ui/skiper40';
 
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
 
-  const springScroll = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const rotateX = useTransform(springScroll, [0, 1], [0, 15]);
-  const opacity = useTransform(springScroll, [0, 0.2], [1, 0]);
-  const scale = useTransform(springScroll, [0, 0.2], [1, 0.9]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+  const rotate = useTransform(scrollYProgress, [0, 0.2], [0, -5]);
+  const opacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
   return (
-    <div ref={containerRef} className="flex flex-col bg-[#020408] min-h-[200vh] text-white overflow-x-hidden">
-      {/* Hero Section with 3D Perspective */}
-      <section className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-amber-500/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-50" />
+    <div ref={containerRef} className="relative bg-[#020408] text-white selection:bg-emerald-500 selection:text-black">
+      
+      {/* 3D Cinematic Hero */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <motion.div 
+          style={{ scale, rotate, opacity }}
+          className="absolute inset-0 z-0"
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-[#020408]" />
+          <img 
+            src="/hero_3d_golf_impact_1776806093015.png" 
+            alt="Premium 3D Visual"
+            className="w-full h-full object-cover opacity-60 scale-110"
+          />
+        </motion.div>
+
+        {/* Floating Motion Graphics */}
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ x: Math.random() * 1000, y: Math.random() * 1000 }}
+              animate={{ 
+                x: [Math.random() * 100, Math.random() * 500, Math.random() * 100],
+                y: [Math.random() * 100, Math.random() * 500, Math.random() * 100],
+                rotate: [0, 360],
+              }}
+              transition={{ duration: 20 + i * 5, repeat: Infinity, ease: "linear" }}
+              className="absolute w-64 h-64 bg-emerald-500/5 rounded-full blur-[100px]"
+            />
+          ))}
         </div>
 
-        <motion.div 
-          style={{ opacity, scale, rotateX }}
-          className="relative z-10 mx-auto max-w-7xl px-6 text-center preserve-3d"
-        >
+        <div className="relative z-20 text-center px-6 max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-10 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-2 backdrop-blur-md"
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
-            <span className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-400">Next-Gen Philanthropy</span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl font-black leading-[0.9] tracking-tighter md:text-9xl lg:text-[12rem]"
-          >
-            DRIVE <br />
-            <span className="bg-gradient-to-b from-emerald-400 to-emerald-700 bg-clip-text text-transparent italic">IMPACT</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-12 mx-auto max-w-2xl text-xl text-slate-400 font-medium leading-relaxed"
-          >
-            Where elite golf performance meets global humanitarian change. 
-            Track every swing, join the inner circle, and transform scores into life-saving donations.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="mt-16 flex flex-col items-center justify-center gap-8 sm:flex-row"
-          >
-            <Link href="/signup" className="group relative px-10 py-5 bg-emerald-500 text-black font-black text-xl rounded-2xl transition-all hover:scale-105 hover:rotate-1 shadow-[0_20px_50px_rgba(16,185,129,0.3)]">
-              JOIN THE MOVEMENT
-              <ArrowRight className="inline-all ml-2 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            
-            <Link004 href="/charities" className="text-white font-bold text-xl uppercase tracking-widest">
-              Explore Partners
-            </Link004>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        >
-          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Scroll to Explore</span>
-          <div className="h-12 w-[1px] bg-gradient-to-b from-emerald-500 to-transparent" />
-        </motion.div>
-      </section>
-
-      {/* Floating 3D Cards Section */}
-      <section className="relative z-20 px-6 py-40">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-            {[
-              {
-                icon: Heart,
-                title: "Curated Selection",
-                desc: "10% of every membership fee is direct-routed to high-impact charities you choose.",
-                color: "emerald"
-              },
-              {
-                icon: Target,
-                title: "Precision Tracking",
-                desc: "Our AI-powered engine analyzes your rolling 5 Stableford scores to gamify giving.",
-                color: "emerald"
-              },
-              {
-                icon: Trophy,
-                title: "Elite Rewards",
-                desc: "The better you play, the more we donate. Plus, exclusive monthly prize draws.",
-                color: "emerald"
-              }
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 50, rotateX: 20 }}
-                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="glass-card group p-10 rounded-[40px] preserve-3d"
-              >
-                <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 transition-all group-hover:scale-110 group-hover:rotate-6 group-hover:bg-emerald-500 group-hover:text-black shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                  <item.icon size={32} />
-                </div>
-                <h3 className="text-3xl font-bold mb-4 tracking-tight">{item.title}</h3>
-                <p className="text-slate-400 leading-relaxed text-lg">{item.desc}</p>
-                
-                <div className="mt-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-emerald-400 font-bold text-sm uppercase tracking-widest flex items-center gap-2">
-                    Learn More <ArrowRight size={14} />
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3D Statistics / Impact Section */}
-      <section className="relative py-40 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-20">
-            <div className="flex-1">
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-8">
-                REAL TIME <br />
-                <span className="text-emerald-500">IMPACT DATA</span>
-              </h2>
-              <p className="text-xl text-slate-400 max-w-lg mb-12">
-                We believe in radical transparency. Watch as every birdie on the course transforms into real-world change in real-time.
-              </p>
-              <Link href="/impact" className="inline-flex items-center gap-4 text-emerald-400 font-bold text-lg hover:gap-6 transition-all">
-                VIEW GLOBAL DASHBOARD <ArrowRight />
-              </Link>
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-4 py-1.5 backdrop-blur-md mb-8">
+              <Zap size={14} className="text-emerald-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Next Gen Golf Philanthropy</span>
             </div>
-            
-            <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-              {[
-                { label: "Total Raised", val: "$1.4M", sub: "+12% MoM" },
-                { label: "Active Players", val: "18.5K", sub: "Global" },
-                { label: "Draws Won", val: "542", sub: "Premium" },
-                { label: "Charity Partners", val: "85+", sub: "Verified" }
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.05, rotateZ: i % 2 === 0 ? 1 : -1 }}
-                  className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl"
-                >
-                  <div className="text-xs font-black text-emerald-500 uppercase tracking-widest mb-2">{stat.label}</div>
-                  <div className="text-4xl font-black mb-1">{stat.val}</div>
-                  <div className="text-[10px] text-slate-500 font-bold">{stat.sub}</div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="px-6 pb-40">
-        <motion.div 
-          whileInView={{ scale: [0.9, 1], opacity: [0, 1] }}
-          className="relative overflow-hidden rounded-[60px] bg-emerald-500 p-20 text-center text-black"
-        >
-          <div className="relative z-10">
-            <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 leading-none">
-              READY TO PLAY <br /> FOR SOMETHING BIGGER?
-            </h2>
-            <p className="text-xl font-bold max-w-2xl mx-auto mb-12 opacity-80">
-              Join the elite circle of golfers who are changing the world, one hole at a time.
+            <h1 className="text-6xl md:text-9xl font-black tracking-tighter leading-[0.85] mb-8">
+              DRIVE <span className="text-emerald-500 italic">IMPACT.</span><br />
+              NOT JUST <span className="text-white/20">DISTANCE.</span>
+            </h1>
+            <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-2xl mx-auto mb-12">
+              The world's first high-stakes philanthropy engine where your handicap fuels global change.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link href="/signup" className="px-12 py-6 bg-black text-white font-black text-2xl rounded-2xl hover:scale-110 transition-transform">
-                GET STARTED NOW
+              <Link href="/signup" className="group relative px-12 py-5 bg-white text-black font-black rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-95">
+                <span className="relative z-10 flex items-center gap-2">START YOUR ROUND <ArrowRight size={20} /></span>
+                <div className="absolute inset-0 bg-emerald-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
               </Link>
+              <button className="flex items-center gap-4 text-xs font-black uppercase tracking-widest hover:text-emerald-400 transition-colors">
+                <div className="h-14 w-14 rounded-full border border-white/10 flex items-center justify-center group-hover:border-emerald-500/50">
+                  <Play size={18} fill="currentColor" />
+                </div>
+                WATCH MOTION SHOWCASE
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Cinematic Motion Showcase Section */}
+      <section className="py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative aspect-video rounded-[40px] overflow-hidden border border-white/10 group"
+            >
+              <img 
+                src="/hero_3d_golf_impact_1776806093015.png" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                alt="Motion Graphic" 
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="h-20 w-20 rounded-full bg-emerald-500 text-black flex items-center justify-center scale-75 group-hover:scale-100 transition-transform">
+                  <Play size={32} fill="currentColor" />
+                </div>
+              </div>
+              <div className="absolute bottom-10 left-10 p-6 glass-card rounded-2xl opacity-0 translate-y-10 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">Interactive Feature</div>
+                <div className="text-lg font-black text-white">3D PERFORMANCE MAPPING</div>
+              </div>
+            </motion.div>
+
+            <div className="space-y-12">
+              <div className="inline-block h-1 w-20 bg-emerald-500" />
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter">
+                VISUALIZE YOUR <br />
+                <span className="text-white/40">GIVING JOURNEY.</span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center text-emerald-400">
+                    <Target size={24} />
+                  </div>
+                  <h3 className="text-xl font-black">PRECISION IMPACT</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed">
+                    Every Stableford point is tracked and converted into measurable charitable metrics in real-time.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center text-amber-400">
+                    <Shield size={24} />
+                  </div>
+                  <h3 className="text-xl font-black">ELITE VERIFICATION</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed">
+                    Our 3D verification engine ensures all scores are validated before the monthly draw.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-          
-          {/* 3D Decorative Orbs */}
-          <div className="absolute -top-20 -right-20 h-80 w-80 rounded-full bg-white/20 blur-3xl animate-float" />
-          <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-black/10 blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+        </div>
+      </section>
+
+      {/* Floating Call to Action */}
+      <section className="py-40 flex items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-emerald-500/10 blur-[150px] animate-pulse" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="relative glass-card p-20 rounded-[60px] text-center max-w-4xl border-emerald-500/20"
+        >
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8">READY TO CHANGE <br />THE GAME?</h2>
+          <Link href="/signup" className="btn-primary inline-flex items-center gap-3 text-xl">
+            JOIN THE OBSIDIAN ELITE <ArrowRight size={24} strokeWidth={3} />
+          </Link>
         </motion.div>
       </section>
     </div>
   );
 }
-
