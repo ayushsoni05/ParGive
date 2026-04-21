@@ -47,7 +47,10 @@ export default function Home() {
           />
         </motion.div>
 
-        <div className="relative z-20 text-center px-6 max-w-6xl">
+        <motion.div 
+          style={{ scale: heroScale, rotateZ: heroRotate, opacity: heroOpacity }}
+          className="relative z-20 text-center px-6 max-w-6xl"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -71,7 +74,8 @@ export default function Home() {
               </Link>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
+
       </section>
 
       {/* 2. Interactive 3D Video Section */}
