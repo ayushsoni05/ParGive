@@ -1,13 +1,13 @@
 'use client';
 
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Trophy, Heart, ArrowRight, Target, Play, Shield, Zap, Activity } from 'lucide-react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
+import { Trophy, Heart, ArrowRight, Target, Play, Shield, Zap, Activity, X } from 'lucide-react';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 export default function Home() {
   const containerRef = useRef(null);
-  const videoSectionRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -27,10 +27,13 @@ export default function Home() {
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
   const smoothVideoScale = useSpring(videoScale, springConfig);
 
+  // Stock Cinematic Golf Video (Pexels)
+  const videoUrl = "https://player.vimeo.com/external/494163967.sd.mp4?s=696f019f39003507d4722513f56d68b94f54e601&profile_id=165&oauth2_token_id=57447761";
+
   return (
     <div ref={containerRef} className="relative bg-[#020408] text-white selection:bg-emerald-500 selection:text-black">
       
-      {/* 1. Immersive Hero with 3D Depth */}
+      {/* 1. Immersive Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden sticky top-0">
         <motion.div 
           style={{ scale: heroScale, rotateZ: heroRotate, opacity: heroOpacity }}
@@ -71,8 +74,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. 3D Scroll Video Motion Graphic */}
-      <section ref={videoSectionRef} className="relative min-h-screen py-40 flex items-center justify-center perspective-1000">
+      {/* 2. Interactive 3D Video Section */}
+      <section className="relative min-h-screen py-40 flex items-center justify-center perspective-1000">
         <motion.div 
           style={{ 
             scale: smoothVideoScale, 
@@ -81,53 +84,83 @@ export default function Home() {
           }}
           className="relative w-[90vw] max-w-7xl aspect-video rounded-[60px] overflow-hidden border border-white/10 glass-card preserve-3d group shadow-2xl"
         >
-          {/* Animated Video Placeholder Graphic */}
+          {/* Video Thumbnail & Layering */}
           <div className="absolute inset-0 z-0">
-             <img 
-              src="/hero_3d_golf_impact.png" 
-              className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-1000" 
-              alt="Motion Graphic Video" 
-            />
-            {/* Scanlines Overlay */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20" />
+             {!isPlaying ? (
+               <img 
+                src="/video_thumb.png" 
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
+                alt="Video Thumbnail" 
+               />
+             ) : (
+               <video 
+                 autoPlay 
+                 loop 
+                 muted 
+                 playsInline 
+                 className="w-full h-full object-cover"
+               >
+                 <source src={videoUrl} type="video/mp4" />
+               </video>
+             )}
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
           </div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-          
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-8">
-            <motion.div 
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="h-32 w-32 rounded-full bg-emerald-500 text-black flex items-center justify-center cursor-pointer hover:bg-white transition-colors group/play"
-            >
-              <Play size={48} fill="currentColor" className="ml-2 group-hover/play:scale-125 transition-transform" />
-            </motion.div>
-            <div className="text-center">
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4">THE MOTION OF GIVING</h2>
-              <p className="text-emerald-400 font-black uppercase tracking-[0.4em] text-sm">Experience the 3D Impact Visualization</p>
-            </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 z-10">
+            {!isPlaying && (
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsPlaying(true)}
+                className="h-32 w-32 rounded-full bg-emerald-500 text-black flex items-center justify-center cursor-pointer shadow-[0_0_50px_rgba(16,185,129,0.5)] group/play"
+              >
+                <Play size={48} fill="currentColor" className="ml-2" />
+              </motion.div>
+            )}
+            {!isPlaying && (
+              <div className="text-center">
+                <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4">THE MOTION OF GIVING</h2>
+                <p className="text-emerald-400 font-black uppercase tracking-[0.4em] text-sm">Click to watch the cinematic trailer</p>
+              </div>
+            )}
+            {isPlaying && (
+              <button 
+                onClick={() => setIsPlaying(false)}
+                className="absolute top-10 right-10 h-14 w-14 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center hover:bg-white/20 transition-all border border-white/10"
+              >
+                <X size={24} />
+              </button>
+            )}
           </div>
 
           {/* Floating UI Elements over the 'video' */}
-          <div className="absolute top-12 left-12 flex items-center gap-4">
-             <div className="h-3 w-3 rounded-full bg-emerald-500 animate-ping" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Processing Live Data</span>
-          </div>
-          <div className="absolute bottom-12 right-12 glass-card p-6 rounded-3xl border-emerald-500/20 max-w-xs">
-             <div className="text-xs font-black text-white/40 mb-2 uppercase tracking-widest">Global Contribution</div>
-             <div className="text-3xl font-black text-white">$1,245,890.00</div>
-             <div className="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '75%' }}
-                  className="h-full bg-emerald-500" 
-                />
-             </div>
-          </div>
+          {!isPlaying && (
+            <>
+              <div className="absolute top-12 left-12 flex items-center gap-4">
+                 <div className="h-3 w-3 rounded-full bg-emerald-500 animate-ping" />
+                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Live Impact Signal</span>
+              </div>
+              <div className="absolute bottom-12 right-12 glass-card p-8 rounded-3xl border-emerald-500/20 max-w-sm backdrop-blur-2xl">
+                 <div className="text-xs font-black text-white/40 mb-2 uppercase tracking-widest">Platform Status</div>
+                 <div className="flex items-center gap-2 mb-4">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="text-sm font-black tracking-tight">Active Draw: $250,000.00</span>
+                 </div>
+                 <div className="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '85%' }}
+                      transition={{ duration: 2 }}
+                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300" 
+                    />
+                 </div>
+              </div>
+            </>
+          )}
         </motion.div>
       </section>
 
-      {/* 3. Deep Features Section */}
+      {/* 3. Features Section */}
       <section className="py-60 px-6 relative z-10">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
@@ -182,7 +215,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. The Final Call to Action */}
+      {/* 4. CTA */}
       <section className="py-60 flex items-center justify-center relative overflow-hidden bg-black">
         <div className="absolute inset-0 bg-emerald-500/5 blur-[150px] animate-pulse" />
         <div className="relative text-center max-w-5xl px-6">
