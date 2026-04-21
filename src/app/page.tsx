@@ -27,8 +27,9 @@ export default function Home() {
   const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
   const smoothVideoScale = useSpring(videoScale, springConfig);
 
-  // Stock Cinematic Golf Video (Pexels)
-  const videoUrl = "https://player.vimeo.com/external/494163967.sd.mp4?s=696f019f39003507d4722513f56d68b94f54e601&profile_id=165&oauth2_token_id=57447761";
+  // Stable Cinematic Golf Video (Mixkit)
+  const videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-cinematic-view-of-a-golf-course-4171-large.mp4";
+
 
   return (
     <div ref={containerRef} className="relative bg-[#020408] text-white selection:bg-emerald-500 selection:text-black">
