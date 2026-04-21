@@ -12,14 +12,54 @@ const MOCK_CHARITIES = [
   { id: '4', name: 'Green Canopy', category: 'Environment', desc: 'Reforestation projects in the Amazon and beyond.' },
 ];
 
+import { supabase } from '@/lib/supabase';
+import { useEffect } from 'react';
+
 export default function Onboarding() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [selectedCharity, setSelectedCharity] = useState<string | null>(null);
   const [contribution, setContribution] = useState(10);
   const [search, setSearch] = useState('');
+  const [user, setUser] = useState<any>(null);
 
-  const filteredCharities = MOCK_CHARITIES.filter(c => 
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) router.push('/login');
+      else setUser(user);
+    };
+    checkUser();
+  }, [router]);
+
+  const handleConfirm = async () => {
+    if (!user || !selectedCharity) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        charity_id: selectedCharity,
+        charity_percentage: contribution,
+        subscription_status: 'active' // Mocking activation after onboarding
+      })
+      .eq('id', user.id);
+
+    if (!error) {
+      router.push('/dashboard');
+    }
+  };
+
+  const [charities, setCharities] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchCharities = async () => {
+      const { data } = await supabase.from('charities').select('*');
+      if (data) setCharities(data);
+    };
+    fetchCharities();
+  }, []);
+
+  const filteredCharities = charities.filter(c => 
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -76,7 +116,7 @@ export default function Onboarding() {
                     {selectedCharity === charity.id && <Check size={18} className="text-emerald-500" />}
                   </div>
                   <h3 className="font-bold text-white">{charity.name}</h3>
-                  <p className="text-sm text-slate-500">{charity.desc}</p>
+                  <p className="text-sm text-slate-500">{charity.description}</p>
                 </button>
               ))}
             </div>
@@ -144,7 +184,7 @@ export default function Onboarding() {
             <div className="flex gap-4">
               <button onClick={() => setStep(1)} className="px-6 py-4 font-medium text-slate-400 hover:text-white">Back</button>
               <button 
-                onClick={() => router.push('/dashboard')}
+                onClick={handleConfirm}
                 className="btn-primary w-full justify-center py-4 text-lg"
               >
                 Confirm & Enter Dashboard <Heart size={20} className="fill-white" />

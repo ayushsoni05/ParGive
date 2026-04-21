@@ -30,6 +30,7 @@ export type Charity = {
   name: string;
   description: string;
   image_url: string;
+  category: string;
   impact_summary: string;
   website_url?: string;
 };

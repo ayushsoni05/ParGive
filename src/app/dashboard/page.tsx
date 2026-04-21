@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [newScore, setNewScore] = useState({ score: '', date: '' });
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -32,26 +33,90 @@ export default function Dashboard() {
         return;
       }
       setUser(user);
+      
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*, charities(name)')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileData) setProfile(profileData);
       fetchScores(user.id);
     };
     checkUser();
   }, [router]);
+
+  const [charity, setCharity] = useState<any>(null);
+
+  useEffect(() => {
+    if (profile?.charities) {
+      setCharity(profile.charities);
+    }
+  }, [profile]);
 
   const fetchScores = async (userId: string) => {
     const { data, error } = await supabase
       .from('scores')
       .select('*')
       .eq('user_id', userId)
-      .order('date', { ascending: false })
-      .limit(5);
+      .order('date', { ascending: false });
 
     if (data) setScores(data);
     setLoading(false);
   };
 
+  const [winnings, setWinnings] = useState<any[]>([]);
+  const fetchWinnings = async (userId: string) => {
+    const { data } = await supabase
+      .from('winners')
+      .select('*')
+      .eq('user_id', userId);
+    if (data) setWinnings(data);
+  };
+
+  const [nextDraw, setNextDraw] = useState<any>(null);
+  const fetchDraws = async () => {
+    const { data } = await supabase
+      .from('draws')
+      .select('*')
+      .eq('status', 'published')
+      .order('draw_date', { ascending: true })
+      .limit(1);
+    
+    if (data && data.length > 0) setNextDraw(data[0]);
+  };
+
+  useEffect(() => {
+    fetchDraws();
+  }, []);
+
   const handleAddScore = async () => {
     if (!newScore.score || !newScore.date || !user) return;
     
+    // Check current count
+    const { count, error: countError } = await supabase
+      .from('scores')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    if (count !== null && count >= 5) {
+      // Find oldest score to delete
+      const { data: oldest } = await supabase
+        .from('scores')
+        .select('id')
+        .eq('user_id', user.id)
+        .order('date', { ascending: true })
+        .limit(1)
+        .single();
+
+      if (oldest) {
+        await supabase
+          .from('scores')
+          .delete()
+          .eq('id', oldest.id);
+      }
+    }
+
     // Add to DB
     const { data: inserted, error } = await supabase
       .from('scores')
@@ -66,7 +131,6 @@ export default function Dashboard() {
       .single();
 
     if (inserted) {
-      // Logic for rolling 5: Fetch latest 5 again to ensure sync
       fetchScores(user.id);
     }
     
@@ -84,11 +148,13 @@ export default function Dashboard() {
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-end">
             <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Subscription</span>
-            <span className="text-sm font-semibold text-emerald-400">Hero Partner • Active</span>
+            <span className="text-sm font-semibold text-emerald-400">
+              {profile?.plan_type ? (profile.plan_type.charAt(0).toUpperCase() + profile.plan_type.slice(1)) : 'No Plan'} • {profile?.subscription_status || 'Inactive'}
+            </span>
           </div>
-          <button className="rounded-full bg-white/5 p-2 text-slate-400 transition-colors hover:bg-white/10">
+          <Link href="/subscribe" className="rounded-full bg-white/5 p-2 text-slate-400 transition-colors hover:bg-white/10">
             <CreditCard size={20} />
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -104,11 +170,16 @@ export default function Dashboard() {
                 <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Winnings</span>
               </div>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-black text-white">$1,250</span>
+                <span className="text-4xl font-black text-white">
+                  ${winnings.reduce((acc, w) => acc + Number(w.prize_amount), 0).toLocaleString()}
+                </span>
                 <span className="mb-1 text-sm text-emerald-400">Total</span>
               </div>
               <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-                <Info size={14} /> Payout of $250 is currently pending
+                <Info size={14} /> 
+                {winnings.some(w => w.status === 'pending') 
+                  ? `Payout of $${winnings.filter(w => w.status === 'pending').reduce((acc, w) => acc + Number(w.prize_amount), 0)} is pending` 
+                  : 'No pending payouts'}
               </div>
             </div>
 
@@ -118,14 +189,29 @@ export default function Dashboard() {
                 <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Your Charity</span>
               </div>
               <div className="flex items-center gap-3">
-                <h3 className="text-2xl font-bold text-white">Ocean Cleanse</h3>
-                <span className="rounded-lg bg-rose-500/10 px-2 py-1 text-xs font-bold text-rose-400">15% Impact</span>
+                <h3 className="text-2xl font-bold text-white">{charity?.name || 'Not Selected'}</h3>
+                <span className="rounded-lg bg-rose-500/10 px-2 py-1 text-xs font-bold text-rose-400">{profile?.charity_percentage || 10}% Impact</span>
               </div>
               <Link href="/onboarding" className="mt-4 flex items-center gap-1 text-xs font-semibold text-rose-400 hover:underline">
                 Update Charity <ChevronRight size={14} />
               </Link>
             </div>
           </div>
+
+          {/* Winner Verification */}
+          {winnings.some(w => w.status === 'pending' && !w.proof_url) && (
+            <div className="premium-card border-amber-500/50 bg-amber-500/5">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-white">Action Required: Verify Your Win</h3>
+                  <p className="text-sm text-slate-400">Please upload a screenshot of your scores to claim your prize.</p>
+                </div>
+                <button className="btn-primary whitespace-nowrap bg-amber-500 text-slate-900 hover:bg-amber-400">
+                  Upload Proof
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Score Management */}
           <div className="premium-card">
@@ -176,28 +262,36 @@ export default function Dashboard() {
             <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-white">
               <Calendar className="text-amber-500" size={20} /> Next Prize Draw
             </h3>
-            <div className="mb-6">
-              <div className="text-3xl font-black text-white">April 30, 2026</div>
-              <div className="text-sm text-slate-400">Draw #42 • Monthly Classic</div>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-slate-500">
-                <span>Prize Pool Tiers</span>
-                <span>Active Pool</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">5-Number Match</span>
-                <span className="font-bold text-white">$45,000 (Jackpot)</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">4-Number Match</span>
-                <span className="font-bold text-white">$12,400</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-300">3-Number Match</span>
-                <span className="font-bold text-white">$4,200</span>
-              </div>
-            </div>
+            {nextDraw ? (
+              <>
+                <div className="mb-6">
+                  <div className="text-3xl font-black text-white">
+                    {new Date(nextDraw.draw_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </div>
+                  <div className="text-sm text-slate-400">Draw #{nextDraw.id.slice(0, 4)} • Monthly Classic</div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs font-medium uppercase tracking-widest text-slate-500">
+                    <span>Prize Pool Tiers</span>
+                    <span>Active Pool</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-300">5-Number Match</span>
+                    <span className="font-bold text-white">${(nextDraw.total_prize_pool * 0.4).toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-300">4-Number Match</span>
+                    <span className="font-bold text-white">${(nextDraw.total_prize_pool * 0.35).toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-300">3-Number Match</span>
+                    <span className="font-bold text-white">${(nextDraw.total_prize_pool * 0.25).toLocaleString()}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="py-10 text-center text-slate-500">No upcoming draws scheduled.</div>
+            )}
             <Link href="/draws" className="mt-8 block w-full rounded-xl bg-white/5 py-3 text-center text-sm font-bold text-white transition-all hover:bg-white/10">
               View Mechanics
             </Link>

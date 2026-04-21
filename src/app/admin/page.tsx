@@ -22,16 +22,42 @@ const MOCK_STATS = [
   { label: 'Charity Impact', value: '$42,300', change: '+8%', icon: <Heart size={20} /> },
 ];
 
+import { supabase } from '@/lib/supabase';
+import { generateDrawNumbers } from '@/lib/draw-engine';
+import { useEffect } from 'react';
+
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('Draws');
+  const [activeTab, setActiveTab] = useState('Overview');
   const [simulationResult, setSimulationResult] = useState<any>(null);
+  const [stats, setStats] = useState<any[]>(MOCK_STATS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+    const { data: winners } = await supabase.from('winners').select('prize_amount');
+    const { data: profiles } = await supabase.from('profiles').select('subscription_status');
+
+    const totalWinnings = winners?.reduce((acc, w) => acc + Number(w.prize_amount), 0) || 0;
+    const activeSubscribers = profiles?.filter(p => p.subscription_status === 'active').length || 0;
+
+    setStats([
+      { label: 'Total Users', value: userCount?.toString() || '0', change: '+12%', icon: <Users size={20} /> },
+      { label: 'Total Prize Pool', value: `$${(activeSubscribers * 10).toLocaleString()}`, change: 'Active', icon: <Trophy size={20} /> },
+      { label: 'Charity Impact', value: `$${(totalWinnings * 0.1).toLocaleString()}`, change: '+8%', icon: <Heart size={20} /> },
+    ]);
+    setLoading(false);
+  };
 
   const runSimulation = () => {
-    // Mock simulation logic
+    const numbers = generateDrawNumbers('random', []);
     setSimulationResult({
       winners: { '5-match': 0, '4-match': 2, '3-match': 28 },
       totalPool: '$58,400',
-      numbers: [12, 19, 44, 5, 32]
+      numbers: numbers
     });
   };
 
@@ -78,7 +104,7 @@ export default function AdminDashboard() {
         {activeTab === 'Overview' && (
           <div className="flex flex-col gap-8">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {MOCK_STATS.map((stat, i) => (
+              {stats.map((stat, i) => (
                 <div key={i} className="premium-card">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400">{stat.icon}</div>

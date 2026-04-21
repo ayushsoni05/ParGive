@@ -20,6 +20,7 @@ CREATE TABLE public.profiles (
 CREATE TABLE public.charities (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
+    category TEXT,
     description TEXT,
     image_url TEXT,
     impact_summary TEXT,

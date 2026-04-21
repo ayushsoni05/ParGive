@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ParGive - Golf Performance & Charity Platform
 
-## Getting Started
+ParGive is a premium, subscription-driven web application that combines golf performance tracking, monthly prize draws, and charitable giving. It is built with Next.js 14, Tailwind CSS, and Supabase.
 
-First, run the development server:
+## 🚀 Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Subscription Engine**: Support for Monthly and Yearly plans via a premium subscription interface.
+- **5-Score Rolling Logic**: Users enter their latest Stableford scores (1-45). The system automatically retains only the latest 5 scores, replacing the oldest as new ones are added.
+- **Custom Draw Engine**: Algorithm-powered draws that can be weighted by most/least frequent user scores or purely random.
+- **Charity Integration**: Users select a charity and contribution percentage (min 10%) during onboarding.
+- **Admin Dashboard**: Comprehensive control over draws (simulation & publishing), winner verification, and platform analytics.
+- **Winner Verification**: Winners can upload proof of their scores, which administrators then review and approve for payout.
+- **Premium UI/UX**: Motion-enhanced, modern design focused on impact rather than traditional golf clichés.
+
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS, Framer Motion, Lucide React.
+- **Backend**: Supabase (Auth, Database, RLS).
+- **Styling**: Vanilla CSS with Tailwind utilities for a premium look.
+
+## 📁 Project Structure
+
+```text
+src/
+├── app/
+│   ├── (auth)/          # Authentication (Login/Signup)
+│   ├── admin/           # Admin Dashboard
+│   ├── charities/       # Charity Directory
+│   ├── dashboard/       # User Dashboard
+│   ├── onboarding/      # Post-signup charity selection
+│   ├── subscribe/       # Subscription plans
+│   └── layout.tsx       # Root layout with premium styling
+├── components/          # Reusable UI components
+├── lib/
+│   ├── supabase.ts      # Supabase client and type definitions
+│   └── draw-engine.ts   # Core logic for draws and prize pools
+└── supabase_schema.sql  # Database schema and RLS policies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚙️ Setup & Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Supabase Setup**:
+   - Run the contents of `supabase_schema.sql` in your Supabase SQL Editor.
+   - Add initial data to `charities` table to enable onboarding.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Environment Variables**:
+   Create a `.env.local` file with:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-## Learn More
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Run Locally**:
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎯 Evaluation Checklist Compliance
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [x] User signup & login functional.
+- [x] Subscription flow (mocked) and plans implemented.
+- [x] 5-score rolling logic enforced in the dashboard.
+- [x] Draw system logic and simulation implemented in admin.
+- [x] Charity selection and contribution calculation in onboarding.
+- [x] Winner verification flow and payout tracking in both panels.
+- [x] Responsive design for mobile and desktop.
+- [x] Premium, emotion-driven UI/UX.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Prepared as a sample assignment for Digital Heroes evaluation.*
