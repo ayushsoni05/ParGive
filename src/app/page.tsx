@@ -1,7 +1,7 @@
 'use client';
 
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
-import { Trophy, Heart, ArrowRight, Target, Play, Shield, Zap, Globe, Activity } from 'lucide-react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { Trophy, Heart, ArrowRight, Target, Play, Shield, Zap, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { useRef } from 'react';
 
@@ -38,7 +38,7 @@ export default function Home() {
         >
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-[#020408]" />
           <img 
-            src="/hero_3d_golf_impact_1776806093015.png" 
+            src="/hero_3d_golf_impact.png" 
             alt="Premium 3D Visual"
             className="w-full h-full object-cover opacity-40 scale-125"
           />
@@ -84,7 +84,7 @@ export default function Home() {
           {/* Animated Video Placeholder Graphic */}
           <div className="absolute inset-0 z-0">
              <img 
-              src="/hero_3d_golf_impact_1776806093015.png" 
+              src="/hero_3d_golf_impact.png" 
               className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-1000" 
               alt="Motion Graphic Video" 
             />
@@ -168,7 +168,7 @@ export default function Home() {
                   transition={{ duration: 1.5, ease: "easeOut" }}
                   className="glass-card aspect-[4/5] rounded-[60px] overflow-hidden border-emerald-500/20"
                 >
-                  <img src="/hero_3d_golf_impact_1776806093015.png" className="w-full h-full object-cover scale-150 -translate-x-20 rotate-12 opacity-80" />
+                  <img src="/dashboard_3d.png" className="w-full h-full object-cover scale-150 -translate-x-20 rotate-12 opacity-80" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#020408] to-transparent" />
                   <div className="absolute bottom-16 left-16 right-16 text-center">
                     <div className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-4">Live Performance Hub</div>
