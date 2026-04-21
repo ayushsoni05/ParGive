@@ -21,18 +21,21 @@ const Skiper40 = () => {
 
 export { Link000, Link001, Link002, Link003, Link004, Link005, Skiper40 };
 
+interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  children: React.ReactNode;
+  href: string;
+}
+
 const Link000 = ({
   children,
   href,
   className,
-}: {
-  children: React.ReactNode;
-  href: string;
-  className?: string;
-}) => {
+  ...props
+}: LinkProps) => {
   return (
     <Link
       href={href}
+      {...(props as any)}
       className={cn(
         "group relative flex items-center",
         className,
@@ -49,15 +52,12 @@ const Link001 = ({
   children,
   href,
   className,
-}: {
-  children: React.ReactNode;
-  href: string;
-  className?: string;
-}) => {
+  ...props
+}: LinkProps) => {
   return (
     <a
       href={href}
-      target="_blank"
+      {...props}
       className={cn(
         "group relative flex items-center",
         "before:pointer-events-none before:absolute before:left-0 before:top-[1.5em] before:h-[0.05em] before:w-full before:bg-current before:content-['']",
@@ -89,14 +89,12 @@ const Link002 = ({
   children,
   href,
   className,
-}: {
-  children: React.ReactNode;
-  href: string;
-  className?: string;
-}) => {
+  ...props
+}: LinkProps) => {
   return (
     <a
       href={href}
+      {...props}
       className={cn(
         "group relative flex items-center",
         className,
@@ -129,14 +127,12 @@ const Link003 = ({
   children,
   href,
   className,
-}: {
-  children: React.ReactNode;
-  href: string;
-  className?: string;
-}) => {
+  ...props
+}: LinkProps) => {
   return (
     <a
       href={href}
+      {...props}
       className={cn(
         "group relative flex items-center",
         className,
@@ -170,14 +166,12 @@ const Link004 = ({
   children,
   href,
   className,
-}: {
-  children: React.ReactNode;
-  href: string;
-  className?: string;
-}) => {
+  ...props
+}: LinkProps) => {
   return (
     <a
       href={href}
+      {...props}
       className={cn(
         "group relative flex items-center",
         className,
@@ -210,14 +204,12 @@ const Link005 = ({
   children,
   href,
   className,
-}: {
-  children: React.ReactNode;
-  href: string;
-  className?: string;
-}) => {
+  ...props
+}: LinkProps) => {
   return (
     <a
       href={href}
+      {...props}
       className={cn(
         className,
         "group relative flex items-center",
@@ -246,6 +238,7 @@ const Link005 = ({
     </a>
   );
 };
+
 
 /**
  * Skiper 40 Animated Link — React

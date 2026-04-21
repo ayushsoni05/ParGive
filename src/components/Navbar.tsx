@@ -29,7 +29,12 @@ export default function Navbar() {
       scrolled ? 'py-4 backdrop-blur-xl border-b border-white/5 bg-black/40' : 'py-8 bg-transparent'
     }`}>
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
-        <Link href="/" className="group flex items-center gap-3 text-3xl font-black tracking-tighter">
+        <Link 
+          href="/" 
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-3 text-3xl font-black tracking-tighter"
+        >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-black group-hover:rotate-12 transition-transform">
             <Trophy size={20} fill="currentColor" />
           </div>
@@ -43,6 +48,8 @@ export default function Navbar() {
               <Link001 
                 key={link.href} 
                 href={link.href} 
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`text-[11px] font-black tracking-[0.3em] ${
                   pathname === link.href ? 'text-emerald-400' : 'text-slate-400'
                 }`}
@@ -52,11 +59,17 @@ export default function Navbar() {
             ))}
           </div>
           
-          <Link href="/dashboard" className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-white px-6 py-2.5 text-xs font-black tracking-widest text-black transition-all hover:pr-8 active:scale-95">
+          <Link 
+            href="/dashboard" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-white px-6 py-2.5 text-xs font-black tracking-widest text-black transition-all hover:pr-8 active:scale-95"
+          >
             DASHBOARD
             <LayoutDashboard size={14} className="absolute right-3 translate-x-10 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
           </Link>
         </div>
+
 
         {/* Mobile Toggle */}
         <button 
@@ -86,6 +99,8 @@ export default function Navbar() {
               >
                 <Link 
                   href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-4xl font-black tracking-tighter hover:text-emerald-400 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -101,6 +116,8 @@ export default function Navbar() {
             >
               <Link 
                 href="/dashboard" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full bg-emerald-500 px-12 py-5 text-xl font-black text-black"
                 onClick={() => setIsMenuOpen(false)}
               >
