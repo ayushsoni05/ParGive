@@ -2,78 +2,115 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Trophy, Heart, LayoutDashboard, LogIn, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { Trophy, Heart, LayoutDashboard, Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link001 } from '@/components/ui/skiper-ui/skiper40';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navLinks = [
-    { href: '/', label: 'Home', icon: null },
-    { href: '/charities', label: 'Charities', icon: <Heart size={18} /> },
-    { href: '/draws', label: 'Monthly Draw', icon: <Trophy size={18} /> },
+    { href: '/', label: 'HOME' },
+    { href: '/charities', label: 'CHARITIES' },
+    { href: '/draws', label: 'MONTHLY DRAW' },
   ];
 
   return (
-    <nav className="glass sticky top-0 z-50 w-full border-b border-white/10 px-6 py-4">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-2xl font-bold tracking-tighter transition-transform hover:scale-105">
-          <span className="bg-gradient-to-r from-emerald-400 to-amber-500 bg-clip-text text-transparent">PAR</span>
-          <span className="text-white">GIVE</span>
+    <nav className={`fixed top-0 z-[100] w-full transition-all duration-500 ${
+      scrolled ? 'py-4 backdrop-blur-xl border-b border-white/5 bg-black/40' : 'py-8 bg-transparent'
+    }`}>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
+        <Link href="/" className="group flex items-center gap-3 text-3xl font-black tracking-tighter">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-black group-hover:rotate-12 transition-transform">
+            <Trophy size={20} fill="currentColor" />
+          </div>
+          <span className="hidden sm:block">PARGIVE</span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-emerald-400 ${
-                pathname === link.href ? 'text-emerald-400' : 'text-slate-300'
-              }`}
-            >
-              {link.icon}
-              {link.label}
-            </Link>
-          ))}
-          <Link href="/dashboard" className="btn-primary">
-            <LayoutDashboard size={18} />
-            Dashboard
+        <div className="hidden items-center gap-12 md:flex">
+          <div className="flex items-center gap-8">
+            {navLinks.map((link) => (
+              <Link001 
+                key={link.href} 
+                href={link.href} 
+                className={`text-[11px] font-black tracking-[0.3em] ${
+                  pathname === link.href ? 'text-emerald-400' : 'text-slate-400'
+                }`}
+              >
+                {link.label}
+              </Link001>
+            ))}
+          </div>
+          
+          <Link href="/dashboard" className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-white px-6 py-2.5 text-xs font-black tracking-widest text-black transition-all hover:pr-8 active:scale-95">
+            DASHBOARD
+            <LayoutDashboard size={14} className="absolute right-3 translate-x-10 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
           </Link>
         </div>
 
         {/* Mobile Toggle */}
         <button 
-          className="text-white md:hidden"
+          className="relative z-50 text-white md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          <Menu size={24} />
+          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="absolute left-0 top-full flex w-full flex-col gap-4 bg-slate-900/95 p-6 backdrop-blur-xl md:hidden">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-lg font-medium text-white"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link 
-            href="/dashboard" 
-            className="btn-primary justify-center"
-            onClick={() => setIsMenuOpen(false)}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-8 bg-black/95 backdrop-blur-3xl md:hidden"
           >
-            Dashboard
-          </Link>
-        </div>
-      )}
+            {navLinks.map((link, i) => (
+              <motion.div
+                key={link.href}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Link 
+                  href={link.href}
+                  className="text-4xl font-black tracking-tighter hover:text-emerald-400 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              </motion.div>
+            ))}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-8"
+            >
+              <Link 
+                href="/dashboard" 
+                className="rounded-full bg-emerald-500 px-12 py-5 text-xl font-black text-black"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                DASHBOARD
+              </Link>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
+
