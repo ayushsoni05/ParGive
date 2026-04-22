@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -24,17 +25,35 @@ const MOCK_STATS = [
 
 import { supabase } from '@/lib/supabase';
 import { generateDrawNumbers } from '@/lib/draw-engine';
-import { useEffect } from 'react';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('Overview');
   const [simulationResult, setSimulationResult] = useState<any>(null);
   const [stats, setStats] = useState<any[]>(MOCK_STATS);
   const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || user.email !== 'admin@pargive.com') {
+        router.push('/login');
+        return;
+      }
+      setAuthorized(true);
+      fetchStats();
+    };
+    checkAdmin();
+  }, [router]);
+
+  if (loading || !authorized) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   const fetchStats = async () => {
     const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });

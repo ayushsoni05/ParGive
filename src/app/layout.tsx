@@ -10,8 +10,8 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ParGive | Golf for Good",
-  description: "A subscription-based golf performance platform that supports charities with every swing.",
+  title: "ParGive | Elite Golf Philanthropy Protocol",
+  description: "ParGive is a premium, subscription-driven platform merging golf performance tracking with charitable giving. Experience elite 3D UI/UX and automated prize draws.",
 };
 
 export default function RootLayout({

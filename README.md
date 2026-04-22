@@ -1,6 +1,6 @@
 # ParGive - Golf Performance & Charity Platform
 
-ParGive is a premium, subscription-driven web application that combines golf performance tracking, monthly prize draws, and charitable giving. It is built with Next.js 14, Tailwind CSS, and Supabase.
+ParGive is a premium, subscription-driven platform merging golf performance tracking with charitable giving. Built with Next.js 14 and Supabase, it features a unique 5-score rolling logic, automated prize draws, and seamless charity integration. Experience elite 3D UI/UX, glassmorphism effects, and a robust admin suite for winner verification tool.
 
 ## 🚀 Key Features
 
@@ -62,7 +62,15 @@ src/
    npm run dev
    ```
 
-## 🎯 Evaluation Checklist Compliance
+## 🔐 Admin Access
+
+To access the administrative dashboard and simulate draws, use the following credentials:
+- **URL**: `/admin`
+- **Email**: `admin@pargive.com`
+- **Password**: `pargive-admin-2026` (Note: Ensure this user is created in your Supabase Auth dashboard for local testing).
+
+
+## 🎯 Platform Roadmap & Capabilities
 
 - [x] User signup & login functional.
 - [x] Subscription flow (mocked) and plans implemented.
@@ -74,4 +82,4 @@ src/
 - [x] Premium, emotion-driven UI/UX.
 
 ---
-*Prepared as a sample assignment for Digital Heroes evaluation.*
+*ParGive Protocol — The Future of Golf Philanthropy.*
